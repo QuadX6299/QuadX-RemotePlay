@@ -1,39 +1,69 @@
-var app = require('express')();
-var http = require('http').Server(app);
-var sio = require('socket.io');
+var http = require('http');
+var socketio = require('socket.io')
 var users = [];
+var rooms = {};
 
-let server = app.listen(4000, () => {
-  console.log("Listening on 4K");
-})
-let io = sio(server);
+/*
+  room definition
+  name : {
+    open: false
+  }
+*/
+function server(req, res) {
+    // you should probably include something like express if you want to return responses.
+    res.write("Idk how u got here but install my app at link");
+}
 
+let app = http.createServer(server);
 
-io.on('connection', function(socket) {
-   let curRoom = null;
-   console.log('A user connected');
-   users.push(socket.id);
-   console.log(users);
-   socket.on('disconnect', function () {
-      console.log('A user disconnected');
-      users.splice(users.indexOf(socket.id), 1);
-   });
-   socket.on('join room', (name) => {
-     if (curRoom) socket.leave(curRoom);
-     socket.join(name);
-     curRoom = name;
-   })
-   socket.on('sending', (id) => {
-     io.to(id).emit("ready");
-     console.log(id);
-   })
-   socket.on('log', (data) => {
-     console.log(data);
-   })
-   socket.on('update', (data) => {
-     socket.broadcast.to(curRoom).emit("update", data);
-   })
-  socket.on('tunnelling', () => {
-    socket.broadcast.to(curRoom).emit("usb connect");
+var io = socketio(app);
+
+io.on('connection', function(socket){
+  let curRoom = null;
+  console.log('A user connected');
+  users.push(socket.id);
+  console.log(users);
+  //DC
+  socket.on('disconnect', function () {
+     console.log('A user disconnected');
+     users.splice(users.indexOf(socket.id), 1);
+  });
+  //Send a list of available rooms
+  socket.on('get list', () => {
+    socket.emit('list_update', rooms)
+  })
+  //Create a new room whilst leaving current one
+  socket.on('create room', (roomName) => {
+
+    console.log(`Creating room ${roomName}`);
+    if (rooms[roomName]) {
+      socket.emit('error', `${roomName} is takens`);
+    }
+    else {
+      if (curRoom) {
+        socket.leave(curRoom);
+      }
+      socket.join(roomName);
+      curRoom = roomName;
+      rooms[roomName] = {
+        name : roomName,
+        open : true
+      }
+      console.log(`Current rooms ${socket.id} is in: ${JSON.stringify(rooms)}`);
+    }
+  })
+  //join room
+  socket.on('join room', (name) => {
+    if (rooms[name]) {
+      if (curRoom) {
+        socket.leave(curRoom)
+      }
+      socket.join(name);
+      curRoom = name;
+    } else {
+      socket.emit('error', "The room you are trying to join does not exist")
+    }
   })
 });
+
+app.listen(4000)
