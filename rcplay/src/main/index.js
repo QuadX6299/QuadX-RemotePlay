@@ -20,9 +20,9 @@ function createWindow () {
   mainWindow = new BrowserWindow({
     height: 563,
     useContentSize: true,
-    width: 1000
+    width: 1000,
+    frame : false
   })
-
   mainWindow.loadURL(winURL)
 
   mainWindow.on('closed', () => {
@@ -31,7 +31,7 @@ function createWindow () {
 }
 
 app.on('ready', createWindow)
-app.on('ready', createWindow)
+
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {

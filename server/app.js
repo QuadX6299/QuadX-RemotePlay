@@ -1,22 +1,76 @@
-var http = require('http');
-var socketio = require('socket.io')
+var express = require('express');
+var app = express();
+var server = require('http').createServer(app);
+var io = require('socket.io')(server);
+
+app.use(express.urlencoded({extended:true}))
+app.use(express.json())
+
 var users = [];
-var rooms = {};
+var rooms = {
+  'QuadX-RemotePlay' : {
+    population : 0,
+    maxPopulation : 2,
+    password : "blue42sethut"
+  },
+  'QuadX-RemotePlay0' : {
+    population : 0,
+    maxPopulation : 2,
+    password : "blue42sethut"
+  },
+  'QuadX-RemotePlay1' : {
+    population : 0,
+    maxPopulation : 2,
+    password : "blue42sethut"
+  },
+  'QuadX-RemotePlay2' : {
+    population : 0,
+    maxPopulation : 2,
+    password : "blue42sethut"
+  },
+  'QuadX-RemotePlay3' : {
+    population : 0,
+    maxPopulation : 2,
+    password : "blue42sethut"
+  },
+  'QuadX-RemotePlay4' : {
+    population : 0,
+    maxPopulation : 2,
+    password : "blue42sethut"
+  },
+  'QuadX-RemotePlay5' : {
+    population : 0,
+    maxPopulation : 2,
+    password : "blue42sethut"
+  }
+};
 
 /*
   room definition
   name : {
-    open: false
+    population : 0,
+    maxPopulation : 2,
+    password: "etc",
+    name: {
+      "Daniel" : socket.id
+    }
   }
 */
-function server(req, res) {
-    // you should probably include something like express if you want to return responses.
-    res.write("Idk how u got here but install my app at link");
+app.post('/validate', function(req, res,next) {
+  console.log(req.body);
+  res.send(rooms[req.body.name].password == req.body.password)
+});
+
+function delTimeout(roomtbd) {
+  setTimeout(() => {
+    if (rooms[roomtbd]) {
+      if (rooms[roomtbd].population <= 0) {
+        delete rooms[roomtbd]
+      }
+    }
+  }, 60 * 1000)
 }
 
-let app = http.createServer(server);
-
-var io = socketio(app);
 
 io.on('connection', function(socket){
   let curRoom = null;
@@ -25,45 +79,55 @@ io.on('connection', function(socket){
   console.log(users);
   //DC
   socket.on('disconnect', function () {
-     console.log('A user disconnected');
-     users.splice(users.indexOf(socket.id), 1);
-  });
+    if (curRoom) {
+      rooms[curRoom].population--;
+
+    }
+    console.log('A user disconnected');
+    users.splice(users.indexOf(socket.id), 1);
+  })
   //Send a list of available rooms
-  socket.on('get list', () => {
-    socket.emit('list_update', rooms)
+  socket.on('get updated rooms', () => {
+    socket.emit('list_update', Object.keys(rooms));
   })
   //Create a new room whilst leaving current one
-  socket.on('create room', (roomName) => {
-
-    console.log(`Creating room ${roomName}`);
-    if (rooms[roomName]) {
-      socket.emit('error', `${roomName} is takens`);
+  socket.on('create room', (room) => {
+    rooms[room.name] = {
+      population: 1,
+      maxPopulation: room.max,
+      password: room.password,
+      name : {}
     }
-    else {
-      if (curRoom) {
-        socket.leave(curRoom);
-      }
-      socket.join(roomName);
-      curRoom = roomName;
-      rooms[roomName] = {
-        name : roomName,
-        open : true
-      }
-      console.log(`Current rooms ${socket.id} is in: ${JSON.stringify(rooms)}`);
-    }
+    socket.join(room.name)
+    curRoom = room.name
   })
   //join room
-  socket.on('join room', (name) => {
-    if (rooms[name]) {
-      if (curRoom) {
-        socket.leave(curRoom)
-      }
-      socket.join(name);
-      curRoom = name;
-    } else {
-      socket.emit('error', "The room you are trying to join does not exist")
+  socket.on('join room', (room) => {
+    if (rooms[room.name].password == room.password) {
+      if (curRoom) socket.leave(curRoom);
+      socket.join(room.name);
+      rooms[room.name].population++;
+      curRoom = room.name;
     }
+  })
+  //leave room
+  socket.on('leave room', () => {
+    if (curRoom) {
+      delTimeout(curRoom)
+      socket.leave(curRoom)
+      curRoom = null
+    }
+  })
+  //set name
+  socket.on('set name', (name) => {
+    rooms[curRoom].name[name] = socket.id;
+    socket.to(curRoom).emit('user_update', Object.keys(rooms[curRoom].name))
+  })
+  //receive controller data and send to all in current room
+  socket.on('update broadcast', (data, id) => {
+    console.log(data);
+    socket.to(curRoom).emit('update', data, id);
   })
 });
 
-app.listen(4000)
+server.listen(4000)

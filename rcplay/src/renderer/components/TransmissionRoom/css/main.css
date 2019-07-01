@@ -1,0 +1,93 @@
+.left {
+  float: left;
+}
+.right {
+  float: right;
+}
+.devices {
+  overflow: auto;
+  float: left;
+  width: 30vw;
+  box-shadow: 0 2px 25px rgba(0, 0, 0, 0.25);
+  height: 60vh;
+  border-radius: 10px;
+  max-height: 60vh;
+  margin-bottom: 4vh;
+}
+.terminal {
+  float: left;
+  width: 30vw;
+  height: 26vh;
+  box-shadow: 0 2px 25px rgba(0, 0, 0, 0.25);
+  border-radius: 10px;
+}
+.chat {
+  overflow: auto;
+  float: left;
+  width: 28vw;
+  box-shadow: 0 2px 25px rgba(0, 0, 0, 0.25);
+  height: 90vh;
+  border-radius: 10px;
+  max-height: 90vh;
+  margin-right: 2.5vw;
+}
+.users {
+  overflow: auto;
+  float: left;
+  width: 17vw;
+  box-shadow: 0 2px 25px rgba(0, 0, 0, 0.25);
+  height: 90vh;
+  border-radius: 10px;
+  max-height: 90vh;
+
+}
+.btn-custom {
+  background-color: #ffc9b3;
+  padding: 0;
+  float: right;
+  margin-right: 2vw;
+  padding: 0 1vw 0 1vw;
+}
+.active {
+  background-color: #000a7b!important;
+  color: #fff!important;
+}
+.devices ul {
+  list-style-type: none;
+}
+.devices ul li {
+  margin: 2vh 0 2vh 0;
+}
+.devices ul li::before {
+}
+.header {
+  font-family: 'Montserrat', sans-serif;
+  text-align: center;
+  margin-top: 2vh;
+  margin-bottom: 3vh;
+  font-size: 1.5em;
+}
+.fill {
+  background-color: #e7ebf0;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  padding-left: 10vw;
+  padding-right: 10vw;
+  padding-top: 5vh;
+  padding-bottom: 5vh;
+}
+.underline {
+  border-bottom: 2px solid currentColor;
+  display: inline-block;
+  line-height: 0.85;
+  text-shadow:
+    2px 2px white,
+    2px -2px white,
+    -2px 2px white,
+    -2px -2px white;
+}
+div {
+  margin: 0;
+  padding: 0;
+}

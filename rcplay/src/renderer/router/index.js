@@ -4,6 +4,8 @@ import Router from 'vue-router'
 Vue.use(Router)
 
 const LandingPage = () => import('@/components/LandingPage/LandingPage.vue')
+const RoomMenu = () => import('@/components/RoomMenu/RoomMenu.vue')
+const TransmissionRoom = () => import('@/components/TransmissionRoom/TransmissionRoom.vue')
 
 export default new Router({
   routes: [
@@ -13,8 +15,14 @@ export default new Router({
       component: LandingPage
     },
     {
-      path: '*',
-      redirect: '/'
+      path: '/RoomMenu/:searching',
+      name: 'room-menu',
+      component: RoomMenu
+    },
+    {
+      path: '/TransmissionRoom',
+      name: 'control-room',
+      component: TransmissionRoom
     }
   ]
 })
