@@ -8,7 +8,7 @@
         <div class="header">
           Devices
         </div>
-        <router-link :to="{ name: 'room-menu', params: {} }">temp</router-link>
+        <router-link :to="{ name: 'landing-page', params: {} }">temp</router-link>
         <ul>
           <li v-for="device in devices">{{device.product}}
             <button type="button" name="button" class="btn btn-custom" v-bind:class="[active[device.path] ? (active[device.path].on ? 'active' : '') : '']" @click="toggle(device)">{{active[device.path] ? (active[device.path].on ? 'active' : 'disabled') : 'init'}}</button>
